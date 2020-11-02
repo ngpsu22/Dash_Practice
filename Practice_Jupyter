@@ -1,0 +1,221 @@
+import pandas as pd
+import numpy as np
+import plotly.graph_objects as go
+import plotly.express as px
+from jupyter_dash import JupyterDash
+import dash_core_components as dcc
+import dash_html_components as html
+from dash.dependencies import Input, Output
+
+race = pd.read_csv('https://raw.githubusercontent.com/ngpsu22/ed_debt_vs_UBI/main/race_debt_ubi%20(3)')
+education = pd.read_csv('https://github.com/ngpsu22/ed_debt_vs_UBI/raw/main/education_debt_ubi%20(7)')
+age = pd.read_csv('https://github.com/ngpsu22/ed_debt_vs_UBI/raw/main/age_debt_ubi%20(3)')
+income = pd.read_csv('https://github.com/ngpsu22/ed_debt_vs_UBI/raw/main/income_debt_ubi%20(5)')
+networth = pd.read_csv('https://github.com/ngpsu22/ed_debt_vs_UBI/raw/main/networth_debt_ubi%20(5)')
+poor = pd.read_csv('https://github.com/ngpsu22/ed_debt_vs_UBI/raw/main/poor_debt_ubi%20(4)')
+
+race = race.drop([4])
+education = education.drop([4])
+age = age.drop([6])
+income = income.drop([5])
+networth = networth.drop([5])
+poor = poor.drop([2])
+
+# Colors from https://material.io/design/color/the-color-system.html
+BLUE = '#1976D2'
+DARK_BLUE = '#0D47A1'
+BARELY_BLUE = '#E3F2FD'
+GRAY = '#BDBDBD'
+
+colors = [BLUE,] * 5
+colors[-1] = DARK_BLUE
+
+colors2 = [BLUE,] * 7
+colors2[-1] = DARK_BLUE
+
+colors3 = [BLUE,] * 6
+colors3[-1] = DARK_BLUE
+
+colors4 = [BLUE,] * 3
+colors4[-1] = DARK_BLUE
+
+
+def bar_graph(df, x, y, title,text, marker_colors):
+
+    fig = px.bar(df, x=x, y=y,text=text)
+    
+    fig.add_annotation(text="All",
+                       font_color='red',
+                       font_size=18,
+                  xref="paper", yref="paper",
+                  x=1.027, y=0.49, showarrow=False)
+    
+    fig.add_shape(
+        type="line",
+        line=dict(dash="dot", color="red"),
+        x0=0.01,
+        x1=0.99,
+        xref="paper",
+        y0=24.5,
+        y1=24.5,
+        layer='below'
+    )
+    
+        
+    fig.update_layout(
+        title=title,
+        xaxis_title='',
+        yaxis_title='',
+        font=dict(family='Roboto'),
+        plot_bgcolor='white', 
+        uniformtext_minsize=20,
+        uniformtext_mode='hide',
+        yaxis_ticksuffix='%',
+        yaxis_tickprefix='',
+        yaxis_separatethousands=True,
+        xaxis_tickfont = {"size": 18},
+        yaxis_tickfont = {"size": 18},
+        title_x=0.5,
+        title_font_size = 22,
+        yaxis_range = [0,50]
+    )
+    
+    fig.update_traces(texttemplate='%{text}%',marker_color=marker_colors) 
+    
+race_percent = bar_graph(race, 'race', 'percent_has_debt', 
+                      title="Percent of households with education debt by race",
+                      text='percent_has_debt', marker_colors = colors
+               )
+
+education_percent = bar_graph(education, 'edcl', 'percent_has_debt', 
+                           title="Percent of households with education debt by educaton level",
+                            text='percent_has_debt', marker_colors = colors
+               )
+
+age_percent = bar_graph(age, 'agecl', 'percent_has_debt', 
+                     title="Percent of households with education debt by age group",
+                     text='percent_has_debt', marker_colors = colors2
+               )
+
+income_percent = bar_graph(income, 'income_pp_quintile', 'percent_has_debt', 
+                        title="Percent of households with education debt by income quintile",
+                        text='percent_has_debt', marker_colors = colors3
+               )
+
+networth_percent = bar_graph(networth, 'networth_pp_quintile2', 'percent_has_debt', 
+                        title="Percent of households with education debt by networth quintile",
+                        text='percent_has_debt', marker_colors = colors3
+               )
+
+poor_percent = bar_graph(poor, 'original_poor', 'percent_has_debt', 
+                        title="Percent of households with education debt by poverty status",
+                        text='percent_has_debt', marker_colors = colors4
+               )
+
+def bar_graph2(df, x, y, title,text, marker_colors):
+
+    fig = px.bar(df, x=x, y=y,text=text)
+    
+    fig.add_shape(
+        type="line",
+        line=dict(dash="dot", color="red"),
+        x0=0.01,
+        x1=0.99,
+        xref="paper",
+        y0=3654,
+        y1=3654,
+        layer='below'
+    )
+    
+        
+    fig.update_layout(
+        title=title,
+        xaxis_title='',
+        yaxis_title='',
+        yaxis_ticksuffix='',
+        font=dict(family='Roboto'),
+        plot_bgcolor='white', 
+        uniformtext_minsize=20,
+        uniformtext_mode='hide',
+        xaxis_ticksuffix='',
+        yaxis_tickprefix='$',
+        yaxis_separatethousands=True,
+        xaxis_tickfont = {"size": 18},
+        yaxis_tickfont = {"size": 18},
+        title_x=0.5,
+        title_font_size = 22,
+    )
+    
+    fig.update_traces(texttemplate='$%{text}',marker_color=marker_colors)
+    
+race_mean = bar_graph2(race, 'race', 'mean_debt', 
+                      title="Average household education debt by race",
+                      text='mean_debt', marker_colors = colors
+               )
+
+education_mean = bar_graph2(education, 'edcl', 'mean_debt', 
+                           title="Average household education debt by educaton level",
+                            text='mean_debt', marker_colors = colors
+               )
+
+age_mean = bar_graph2(age, 'agecl', 'mean_debt', 
+                     title="Average household education debt by age group",
+                     text='mean_debt', marker_colors = colors2
+               )
+
+income_mean = bar_graph2(income, 'income_pp_quintile', 'mean_debt', 
+                        title="Average household education debt by income quintile",
+                        text='mean_debt', marker_colors = colors3
+               )
+
+networth_mean = bar_graph2(networth, 'networth_pp_quintile2', 'mean_debt', 
+                        title="Average household education debt by networth quintile",
+                        text='mean_debt', marker_colors = colors3
+               )
+
+poor_mean = bar_graph2(poor, 'original_poor', 'mean_debt', 
+                        title="Average household education debt by poverty status",
+                        text='mean_debt', marker_colors = colors4
+               )
+
+app = JupyterDash(__name__)
+
+app.layout=html.Div([
+    html.H1("Practice"),
+    dcc.Dropdown(
+        id='chart-choice',
+        options=[
+            {'label': 'Percent with education debt', 'value': 'percent'},
+            {'label': 'Average education debt', 'value': 'mean'}
+        ],
+        value='percent'
+    ),
+    dcc.Dropdown(
+        id='demo-choice',
+        options=[
+            {'label': 'Race', 'value': 'race'},
+            {'label': 'Education', 'value': 'education'}
+        ],
+        value='race'
+    ),
+    dcc.Graph(id='my-graph',
+              figure={}),
+])
+@app.callback(
+    Output(component_id='my-graph', component_property='figure'),
+    Input(component_id='chart-choice', component_property='value'),
+    Input(component_id='demo-choice', component_property='value')
+)
+
+def interactive_graphing(chart, demo):
+    if (chart == 'percent') & (demo=='race'):
+        return race_percent
+    if (chart == 'mean') & (demo=='race'):
+        return race_mean
+    
+    if (chart == 'percent') & (demo=='education'):
+        return education_percent
+    if (chart == 'mean') & (demo=='education'):
+        return education_mean
+       
+app.run_server(mode='external')
