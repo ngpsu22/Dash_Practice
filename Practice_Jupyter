@@ -6,6 +6,7 @@ from jupyter_dash import JupyterDash
 import dash_core_components as dcc
 import dash_html_components as html
 from dash.dependencies import Input, Output
+import dash_bootstrap_components as dbc
 
 race = pd.read_csv('https://raw.githubusercontent.com/ngpsu22/ed_debt_vs_UBI/main/race_debt_ubi%20(3)')
 education = pd.read_csv('https://github.com/ngpsu22/ed_debt_vs_UBI/raw/main/education_debt_ubi%20(7)')
@@ -42,13 +43,19 @@ colors4[-1] = DARK_BLUE
 
 def bar_graph(df, x, y, title,text, marker_colors):
 
-    fig = px.bar(df, x=x, y=y,text=text)
+    fig = px.bar(df, x=x, y=y,text=text, height=500, width=800)
     
     fig.add_annotation(text="All",
                        font_color='red',
                        font_size=18,
                   xref="paper", yref="paper",
-                  x=1.027, y=0.49, showarrow=False)
+                  x=1.033, y=0.49, showarrow=False)
+    
+    fig.add_annotation(text="24.5%",
+                       font_color='red',
+                       font_size=18,
+                  xref="paper", yref="paper",
+                  x=-0.068, y=0.49, showarrow=False)
     
     fig.add_shape(
         type="line",
@@ -80,7 +87,9 @@ def bar_graph(df, x, y, title,text, marker_colors):
         yaxis_range = [0,50]
     )
     
-    fig.update_traces(texttemplate='%{text}%',marker_color=marker_colors) 
+    fig.update_traces(texttemplate='%{text}%',marker_color=marker_colors)
+    
+    return fig
     
 race_percent = bar_graph(race, 'race', 'percent_has_debt', 
                       title="Percent of households with education debt by race",
@@ -114,7 +123,19 @@ poor_percent = bar_graph(poor, 'original_poor', 'percent_has_debt',
 
 def bar_graph2(df, x, y, title,text, marker_colors):
 
-    fig = px.bar(df, x=x, y=y,text=text)
+    fig = px.bar(df, x=x, y=y,text=text, height=500, width=800)
+    
+    fig.add_annotation(text="All",
+                       font_color='red',
+                       font_size=18,
+                  xref="paper", yref="paper",
+                  x=1.033, y=0.276, showarrow=False)
+    
+    fig.add_annotation(text="$3,654",
+                       font_color='red',
+                       font_size=18,
+                  xref="paper", yref="paper",
+                  x=-0.068, y=0.24, showarrow=False)
     
     fig.add_shape(
         type="line",
@@ -144,9 +165,12 @@ def bar_graph2(df, x, y, title,text, marker_colors):
         yaxis_tickfont = {"size": 18},
         title_x=0.5,
         title_font_size = 22,
+        yaxis_range = [0,12_000]
     )
     
     fig.update_traces(texttemplate='$%{text}',marker_color=marker_colors)
+    
+    return fig
     
 race_mean = bar_graph2(race, 'race', 'mean_debt', 
                       title="Average household education debt by race",
@@ -178,44 +202,221 @@ poor_mean = bar_graph2(poor, 'original_poor', 'mean_debt',
                         text='mean_debt', marker_colors = colors4
                )
 
-app = JupyterDash(__name__)
+def bar_graph3(df, x, y, title,text, marker_colors):
 
-app.layout=html.Div([
-    html.H1("Practice"),
-    dcc.Dropdown(
-        id='chart-choice',
-        options=[
-            {'label': 'Percent with education debt', 'value': 'percent'},
-            {'label': 'Average education debt', 'value': 'mean'}
-        ],
-        value='percent'
-    ),
-    dcc.Dropdown(
-        id='demo-choice',
-        options=[
-            {'label': 'Race', 'value': 'race'},
-            {'label': 'Education', 'value': 'education'}
-        ],
-        value='race'
-    ),
-    dcc.Graph(id='my-graph',
-              figure={}),
+    fig = px.bar(df, x=x, y=y,text=text, height=500, width=800)
+    
+    fig.add_annotation(text="All",
+                       font_color='red',
+                       font_size=18,
+                  xref="paper", yref="paper",
+                  x=1.033, y=0.29, showarrow=False)
+    fig.add_annotation(text="15.9%",
+                       font_color='red',
+                       font_size=18,
+                  xref="paper", yref="paper",
+                  x=-0.068, y=0.29, showarrow=False)
+    
+    fig.add_shape(
+        type="line",
+        line=dict(dash="dot", color="red"),
+        x0=0.01,
+        x1=0.99,
+        xref="paper",
+        y0=15.9,
+        y1=15.9,
+        layer='below'
+    )
+    
+        
+    fig.update_layout(
+        title=title,
+        xaxis_title='',
+        yaxis_title='',
+        font=dict(family='Roboto'),
+        plot_bgcolor='white', 
+        uniformtext_minsize=20,
+        uniformtext_mode='hide',
+        yaxis_ticksuffix='%',
+        yaxis_tickprefix='',
+        yaxis_separatethousands=True,
+        xaxis_tickfont = {"size": 18},
+        yaxis_tickfont = {"size": 18},
+        title_x=0.5,
+        title_font_size = 22,
+        yaxis_range = [0,50]
+    )
+    
+    fig.update_traces(texttemplate='%{text}%',marker_color=marker_colors)
+    
+    return fig
+
+race_percent_ed = bar_graph3(race, 'race', 'percent_better_off_with_ed', 
+                      title="Percent of people better off with education debt cancellation<br>compared to budget equivalent UBI by race",
+                      text='percent_better_off_with_ed', marker_colors = colors
+               )
+
+education_percent_ed = bar_graph3(education, 'edcl', 'percent_better_off_with_ed', 
+                           title="Percent of people better off with education debt cancellation<br>compared to budget equivalent UBI by educaton level",
+                            text='percent_better_off_with_ed', marker_colors = colors
+               )
+
+age_percent_ed = bar_graph3(age, 'agecl', 'percent_better_off_with_ed', 
+                     title="Percent of people better off with education debt cancellation<br>compared to budget equivalent UBI by age group",
+                     text='percent_better_off_with_ed', marker_colors = colors2
+               )
+
+income_percent_ed = bar_graph3(income, 'income_pp_quintile', 'percent_better_off_with_ed', 
+                        title="Percent of people better off with education debt cancellation<br>compared to budget equivalent UBI by income quintile",
+                        text='percent_better_off_with_ed', marker_colors = colors3
+               )
+
+networth_percent_ed = bar_graph3(networth, 'networth_pp_quintile2', 'percent_better_off_with_ed', 
+                        title="Percent of people better off with education debt cancellation<br>compared to budget equivalent UBI by networth quintile",
+                        text='percent_better_off_with_ed', marker_colors = colors3
+               )
+
+poor_percent_ed = bar_graph3(poor, 'original_poor', 'percent_better_off_with_ed', 
+                        title="Percent of people better off with education debt cancellation<br>compared to budget equivalent UBI by poverty status",
+                        text='percent_better_off_with_ed', marker_colors = colors4
+               )
+
+
+
+card_main = dbc.Card(
+    [
+        dbc.CardBody(
+            [
+                html.H3("Select Data", style={'text-align': 'center',
+                                              'color': 'white'},
+                        className="card-title"),
+                html.Br(),
+                html.Label(['Select Chart:'],style={'font-weight': 'bold',
+                                                            "text-align": "center",
+                                                            "color": 'white',
+                                                            'fontSize':20}),
+                dcc.Dropdown(
+                            id='chart-choice',
+                            options=[
+                                    {'label': 'Percent with education debt', 'value': 'percent'},
+                                    {'label': 'Average education debt', 'value': 'mean'},
+                                    {'label': 'Percent better off with education debt cancellation over UBI', 'value': 'better_off'}
+                                ],
+                                value='percent',
+                                ),
+                html.Br(),
+                html.Label(['Select Demographic:'],style={'font-weight': 'bold',
+                                                            "text-align": "center",
+                                                             "color":"white",
+                                                            'fontSize':20}),
+                dcc.Dropdown(
+                                    id='demo-choice',
+                                    options=[
+                                        {'label': 'Race', 'value': 'race'},
+                                        {'label': 'Education', 'value': 'education'},
+                                        {'label': 'Age', 'value': 'age'},
+                                        {'label': 'Income', 'value': 'income'},
+                                        {'label': 'Networth', 'value': 'networth'},
+                                        {'label': 'Poverty Status', 'value': 'poor'}
+
+                                    ],
+                                    value='race',
+                                ),
+                
+                
+            ]
+        ),
+    ],
+    color="info",   
+    outline=False,
+)
+
+
+
+card_graph = dbc.Card(
+        dcc.Graph(id='my-graph',
+              figure={}), body=True, color="info",
+)
+
+
+
+
+
+
+
+
+
+
+
+app = JupyterDash(__name__,
+                  external_stylesheets=[dbc.themes.FLATLY])
+
+app.layout = html.Div([
+        # Row 1 - header
+        html.Br(),
+        dbc.Row(
+            [
+            dbc.Col(html.H1("Comparing student debt cancellation to a budget equivalent UBI",
+            style={'text-align': 'center', 'color': '#1976D2', 'fontSize': 50}),
+                        width={'size': 8, 'offset': 2},
+                        ),
+            ]),
+        html.Br(),
+        html.Br(),
+        html.Br(),
+        dbc.Row([
+            dbc.Col(card_main, width=3),
+             dbc.Col(card_graph, width=6.8)],justify="around"),
 ])
+
 @app.callback(
     Output(component_id='my-graph', component_property='figure'),
     Input(component_id='chart-choice', component_property='value'),
     Input(component_id='demo-choice', component_property='value')
 )
 
-def interactive_graphing(chart, demo):
+def interactive_chart(chart, demo):
     if (chart == 'percent') & (demo=='race'):
         return race_percent
     if (chart == 'mean') & (demo=='race'):
         return race_mean
+    if (chart == 'better_off') & (demo=='race'):
+        return race_percent_ed
     
     if (chart == 'percent') & (demo=='education'):
         return education_percent
     if (chart == 'mean') & (demo=='education'):
         return education_mean
+    if (chart == 'better_off') & (demo=='education'):
+        return education_percent_ed
+    
+    if (chart == 'percent') & (demo=='age'):
+        return age_percent
+    if (chart == 'mean') & (demo=='age'):
+        return age_mean
+    if (chart == 'better_off') & (demo=='age'):
+        return age_percent_ed
+    
+    if (chart == 'percent') & (demo=='income'):
+        return income_percent
+    if (chart == 'mean') & (demo=='income'):
+        return income_mean
+    if (chart == 'better_off') & (demo=='income'):
+        return income_percent_ed
+    
+    if (chart == 'percent') & (demo=='networth'):
+        return networth_percent
+    if (chart == 'mean') & (demo=='networth'):
+        return networth_mean
+    if (chart == 'better_off') & (demo=='networth'):
+        return networth_percent_ed
+    
+    if (chart == 'percent') & (demo=='poor'):
+        return poor_percent
+    if (chart == 'mean') & (demo=='poor'):
+        return poor_mean
+    elif (chart == 'better_off') & (demo=='poor'):
+        return poor_percent_ed
+    
        
 app.run_server(mode='external')
